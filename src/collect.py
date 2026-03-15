@@ -18,6 +18,7 @@ def main():
     parser.add_argument("-i", "--interface", required=True, help="Network interface to sniff (e.g., wlan0)")
     parser.add_argument("-m", "--minutes", type=float, required=True, help="Duration of capture in minutes")
     parser.add_argument("-o", "--output", required=True, help="Output filename (e.g., gaming_01)")
+    parser.add_argument("-c", "--category", required=True, help="Category of traffic (e.g., gaming, video, web)")
 
     args = parser.parse_args()
 
@@ -32,7 +33,7 @@ def main():
     # resolves output path
     script_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.abspath(os.path.join(script_dir, '..'))
-    output_dir = os.path.join(project_root, 'data', 'raw_pcaps')
+    output_dir = os.path.join(project_root, 'data', 'raw_pcaps', args.category)
     os.makedirs(output_dir, exist_ok=True)
     
     final_filepath = get_unique_filepath(os.path.join(output_dir, safe_filename))
