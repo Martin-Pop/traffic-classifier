@@ -113,7 +113,11 @@ def transform_captured_data(category, input_file, output_file, target_ip):
     # CLEAN
     raw_packets = rdpcap(input_file)
     cleaned_packets = clean_packets(raw_packets, target_ip)
-
+        
+    if len(cleaned_packets) == 0:
+        print(f"IP {target_ip} was not found")
+        return
+    
     # CUT OFF
     trimmed_packets = cut_off_packets(cleaned_packets)
 
