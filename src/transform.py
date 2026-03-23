@@ -47,12 +47,12 @@ def calculate_features(chunk, target_ip):
     iat_max = max(iats) if iats else 0.0
 
     return {
-        'total_packets': total_packets,
-        'in_packets': in_packets,
-        'out_packets': out_packets,
-        'total_bytes': total_bytes,
-        'in_bytes': in_bytes,
-        'out_bytes': out_bytes,
+        # 'total_packets': total_packets,
+        # 'in_packets': in_packets,
+        # 'out_packets': out_packets,
+        # 'total_bytes': total_bytes,
+        # 'in_bytes': in_bytes,
+        # 'out_bytes': out_bytes,
         'in_packet_ratio': in_packets / total_packets if total_packets > 0 else 0,
         'in_byte_ratio': in_bytes / total_bytes if total_bytes > 0 else 0,
         'size_mean': round(size_mean, 2),
@@ -88,7 +88,7 @@ def cut_off_packets(packets):
     return [p for p in packets if start_time <= float(p.time) <= end_time]
 
 
-def create_sliding_windows(packets, window_size=10.0, step_size=5.0):
+def create_sliding_windows(packets, window_size=20.0, step_size=5.0):
     if not packets:
         return []
 
@@ -122,20 +122,16 @@ def transform_captured_data(category, input_file, output_file, target_ip):
     trimmed_packets = cut_off_packets(cleaned_packets)
 
     # SPLIT
-    chunked_packets = create_sliding_windows(trimmed_packets, window_size=10.0, step_size=5.0)
+    chunked_packets = create_sliding_windows(trimmed_packets, window_size=20.0, step_size=5.0)
 
     # CALCULATE FEATURES
     rows = []
-    prev_total_packets = 0
 
     for chunk in chunked_packets:
         features = calculate_features(chunk, target_ip)
         
         if features:
-            features['prev_total_packets'] = prev_total_packets
-            features['label'] = category
             rows.append(features)
-            prev_total_packets = features['total_packets']
 
     if not rows:
         return

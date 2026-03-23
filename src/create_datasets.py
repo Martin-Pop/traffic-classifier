@@ -11,10 +11,12 @@ def print_usage():
     print("  new <category> <ip>")
     print("  all <category> <ip> (overwrites existing dataset)")
     print("  append <file.pcap> <category> <ip>")
-    print("\nExamples:")
+    print("  merge (combines all category CSVs into one all_data.csv)")
+    print("Examples:")
     print("  new gaming 192.168.1.10")
     print("  all gaming 192.168.1.10")
     print("  append roblox_match1.pcap gaming 192.168.1.10")
+    print("  merge")
     print("----------------------")
 
 def process_all_in_category(category_dir, category, output_csv, ip):
@@ -29,8 +31,43 @@ def process_all_in_category(category_dir, category, output_csv, ip):
     if not found_any:
         print(f"[WARNING] No .pcap files found in {category_dir}.")
 
+def merge_datasets(output_base_dir, merged_filename="all_data.csv"):
+    merged_path = os.path.join(output_base_dir, merged_filename)
+    csv_files = [f for f in os.listdir(output_base_dir) if f.endswith('.csv') and f != merged_filename]
+
+    if not csv_files:
+        print("[WARNING] No CSV files found to merge.")
+        return
+
+    print(f"Merging {len(csv_files)} files into {merged_path}...")
+
+    with open(merged_path, 'w', encoding='utf-8') as outfile:
+        header_written = False
+        
+        for file_name in csv_files:
+            category_name = file_name.replace('.csv', '')
+            file_path = os.path.join(output_base_dir, file_name)
+            
+            with open(file_path, 'r', encoding='utf-8') as infile:
+                header = infile.readline().strip()
+                
+                if not header:
+                    continue
+                    
+                if not header_written:
+                    outfile.write(f"{header},category\n")
+                    header_written = True
+                
+                for line in infile:
+                    line = line.strip()
+                    if line:
+                        outfile.write(f"{line},{category_name}\n")
+
+    print(f"[DONE] Successfully merged into '{merged_filename}'!")
+
+
 def main():
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 2:
         print_usage()
         sys.exit(1)
 
@@ -39,6 +76,14 @@ def main():
     input_base_dir = "data/raw_pcaps"
     output_base_dir = "data/datasets"
     os.makedirs(output_base_dir, exist_ok=True)
+
+    if mode == 'merge':
+        merge_datasets(output_base_dir)
+        sys.exit(0)
+
+    if len(sys.argv) < 4 and mode != 'append':
+        print_usage()
+        sys.exit(1)
 
     if mode in ['new', 'all']:
         category = sys.argv[2]
