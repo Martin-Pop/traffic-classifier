@@ -2,7 +2,7 @@ import os
 import sys
 
 try:
-    from src.transform import transform_captured_data
+    from data_collection.transform import transform_captured_data
 except ImportError:
     from transform import transform_captured_data
 

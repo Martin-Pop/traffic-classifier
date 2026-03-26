@@ -6,8 +6,8 @@ try:
     from collector import collect_packets
     from utils import make_pcap_filename, get_unique_filepath
 except ImportError:
-    from src.collector import collect_packets
-    from src.utils import make_pcap_filename, get_unique_filepath
+    from data_collection.collector import collect_packets
+    from data_collection.utils import make_pcap_filename, get_unique_filepath
 
 def main():
     if os.geteuid() != 0:
