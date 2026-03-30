@@ -1,3 +1,4 @@
 {
-  "analysed_captures_directory": "analysed_captures"
+  "analysed_captures_directory": "analysed_captures",
+  "default_threshold": 0.3
 }

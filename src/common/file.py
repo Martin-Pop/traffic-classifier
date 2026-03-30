@@ -8,6 +8,10 @@ def get_absolute_path(relative_path):
     Works for local execution and for PyInstaller.
     :param relative_path: relative path to resolve
     """
+
+    if os.path.isabs(relative_path):
+        return relative_path
+
     try:
         # pyinstallers temp path is stored in sys._MEIPASS
         base_path = sys._MEIPASS
