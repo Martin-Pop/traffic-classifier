@@ -1,4 +1,6 @@
 import logging
+import sys
+from pathlib import Path
 
 FILE_LOG_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | P:%(process)d | %(message)s"
 CONSOLE_LOG_FORMAT = "%(levelname)s | %(message)s"
@@ -7,7 +9,6 @@ root_logger = logging.getLogger()
 class ExactLevelFilter(logging.Filter):
     def __init__(self, level):
         super().__init__()
-        print(level)
         self._level = level
 
     def filter(self, record):
@@ -30,11 +31,19 @@ def configure_file_loggers(error_path: str = "error.log", info_path: str = "info
     root_logger.addHandler(info_handler)
 
 def configure_console_loggers(debug: bool = False):
+    root_logger.setLevel(logging.DEBUG)
 
-    formatter = logging.Formatter(CONSOLE_LOG_FORMAT)
+    info_handler = logging.StreamHandler(sys.stdout)
+    info_handler.setLevel(logging.INFO)
+    info_handler.addFilter(lambda record: record.levelno <= logging.INFO)
+    info_handler.setFormatter(logging.Formatter(CONSOLE_LOG_FORMAT))
 
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    console_handler.setLevel(logging.DEBUG if debug else logging.INFO)
+    err_handler = logging.StreamHandler(sys.stderr)
+    err_handler.setLevel(logging.WARNING)
+    err_handler.setFormatter(logging.Formatter(CONSOLE_LOG_FORMAT))
 
-    root_logger.addHandler(console_handler)
+    root_logger.addHandler(info_handler)
+    root_logger.addHandler(err_handler)
+
+def ensure_log_directory_exists(log_dir: str):
+    Path(log_dir).mkdir(parents=True, exist_ok=True)
