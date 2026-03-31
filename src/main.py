@@ -3,7 +3,7 @@ import os
 import sys
 
 from common.logger import configure_file_loggers, configure_console_loggers
-from common.file import try_load_json_from_file, get_absolute_path
+from common.file import try_load_json_from_file, get_absolute_path, calculate_file_hash
 from configuration.configurations import AppConfiguration
 
 log = logging.getLogger(__name__)
@@ -24,3 +24,5 @@ if __name__ == "__main__":
 
     configuration = AppConfiguration(**json)
     print(configuration.__dict__)
+
+    print(calculate_file_hash(get_absolute_path("test.pcap")))
