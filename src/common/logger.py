@@ -32,10 +32,11 @@ def configure_file_loggers(error_path: str = "error.log", info_path: str = "info
 
 def configure_console_loggers(debug: bool = False):
     root_logger.setLevel(logging.DEBUG)
+    level = logging.DEBUG if debug else logging.INFO
 
     info_handler = logging.StreamHandler(sys.stdout)
-    info_handler.setLevel(logging.INFO)
-    info_handler.addFilter(lambda record: record.levelno <= logging.INFO)
+    info_handler.setLevel(level)
+    info_handler.addFilter(lambda record: record.levelno <= level)
     info_handler.setFormatter(logging.Formatter(CONSOLE_LOG_FORMAT))
 
     err_handler = logging.StreamHandler(sys.stderr)

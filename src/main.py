@@ -24,4 +24,3 @@ if __name__ == "__main__":
 
     configuration = AppConfiguration(**json)
     print(configuration.__dict__)
-
