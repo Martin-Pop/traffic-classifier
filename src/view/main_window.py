@@ -1,0 +1,99 @@
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import (
+    QMainWindow, QWidget, QVBoxLayout,
+    QLabel, QFileDialog
+)
+
+
+class DropZone(QLabel):
+    file_dropped_signal = Signal(str)
+
+    def __init__(self):
+        super().__init__()
+        self.setText("Drag and drop your PCAP file here")
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setContentsMargins(5,5,5,5)
+        self.setAcceptDrops(True)
+
+        self.style_default = """
+            QLabel {
+                border: 4px dashed #aaa;
+                border-radius: 10px;
+                background-color: #f9f9f9;
+                font-size: 18px;
+                color: #555;
+            }
+            QLabel:hover {
+                background-color: #e9e9e9;
+                border-color: #888;
+                color: #333;
+            }
+        """
+
+        self.style_drag = """
+            QLabel {
+                border: 4px solid #4CAF50;
+                border-radius: 10px;
+                background-color: #e8f5e9;
+                font-size: 18px;
+                color: #2e7d32;
+            }
+        """
+
+        self.setStyleSheet(self.style_default)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            file_path = event.mimeData().urls()[0].toLocalFile()
+            if file_path.endswith(('.pcap', '.pcapng')):
+                event.acceptProposedAction()
+
+                self.setStyleSheet(self.style_drag)
+            else:
+                event.ignore()
+        else:
+            event.ignore()
+
+    def dragLeaveEvent(self, event):
+        self.setStyleSheet(self.style_default)
+
+    def dropEvent(self, event):
+        self.setStyleSheet(self.style_default)
+        file_path = event.mimeData().urls()[0].toLocalFile()
+        self.file_dropped_signal.emit(file_path)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            file_path, _ = QFileDialog.getOpenFileName(
+                self,
+                "Select PCAP file",
+                "",
+                "PCAP files (*.pcap *.pcapng);"
+            )
+            if file_path:
+                self.file_dropped_signal.emit(file_path)
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Traffic Classifier")
+        self.resize(400, 250)
+
+        central_widget = QWidget()
+        central_widget.setObjectName("central_widget")
+        central_widget.setStyleSheet(
+            "#central_widget { background-color: #e6e6e6; }"
+        )
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
+        layout.setContentsMargins(10, 10, 10, 10)
+
+        self._drop_zone = DropZone()
+        layout.addWidget(self._drop_zone)
+
+        self._drop_zone.file_dropped_signal.connect(self._handle_new_file_dropped)
+        self.active_controllers = []
+
+    def _handle_new_file_dropped(self, file_path):
+        pass
