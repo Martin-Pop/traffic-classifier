@@ -4,6 +4,8 @@ from PySide6.QtWidgets import (
     QLabel, QFileDialog
 )
 
+from controllers.session_controller import SessionController
+
 
 class DropZone(QLabel):
     file_dropped_signal = Signal(str)
@@ -77,14 +79,19 @@ class DropZone(QLabel):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.active_sessions = []
+        self._drop_zone = None
+
+        self._init_ui()
+        self._connect_events()
+
+    def _init_ui(self):
         self.setWindowTitle("Traffic Classifier")
         self.resize(400, 250)
 
         central_widget = QWidget()
-        central_widget.setObjectName("central_widget")
-        central_widget.setStyleSheet(
-            "#central_widget { background-color: #e6e6e6; }"
-        )
+        central_widget.setStyleSheet("background-color: #e6e6e6;")
+
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
         layout.setContentsMargins(10, 10, 10, 10)
@@ -92,8 +99,15 @@ class MainWindow(QMainWindow):
         self._drop_zone = DropZone()
         layout.addWidget(self._drop_zone)
 
-        self._drop_zone.file_dropped_signal.connect(self._handle_new_file_dropped)
-        self.active_controllers = []
+    def _connect_events(self):
+        self._drop_zone.file_dropped_signal.connect(self.handle_new_file_dropped)
+        self.handle_new_file_dropped(None)
 
-    def _handle_new_file_dropped(self, file_path):
-        pass
+    def handle_new_file_dropped(self, file_path):
+        session = SessionController(file_path)
+        session.session_closed.connect(self.remove_session)
+        self.active_sessions.append(session)
+
+    def remove_session(self, session_instance):
+        if session_instance in self.active_sessions:
+            self.active_sessions.remove(session_instance)
