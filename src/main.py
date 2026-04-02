@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # print(calculate_file_hash(get_absolute_path("test.pcap")))
 
     app = QApplication(sys.argv)
-    window = MainWindow()
+    window = MainWindow(configuration)
     window.show()
 
     sys.exit(app.exec())

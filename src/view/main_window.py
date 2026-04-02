@@ -77,9 +77,10 @@ class DropZone(QLabel):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, configuration):
         super().__init__()
-        self.active_sessions = []
+        self._configuration = configuration
+        self._active_sessions = []
         self._drop_zone = None
 
         self._init_ui()
@@ -101,13 +102,14 @@ class MainWindow(QMainWindow):
 
     def _connect_events(self):
         self._drop_zone.file_dropped_signal.connect(self.handle_new_file_dropped)
-        self.handle_new_file_dropped(None)
 
     def handle_new_file_dropped(self, file_path):
-        session = SessionController(file_path)
+        session = SessionController(self._configuration)
         session.session_closed.connect(self.remove_session)
-        self.active_sessions.append(session)
+        self._active_sessions.append(session)
+
+        session.start(file_path)
 
     def remove_session(self, session_instance):
-        if session_instance in self.active_sessions:
-            self.active_sessions.remove(session_instance)
+        if session_instance in self._active_sessions:
+            self._active_sessions.remove(session_instance)

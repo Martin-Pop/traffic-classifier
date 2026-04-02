@@ -45,3 +45,12 @@ def calculate_file_hash(filepath, chunk_size=65536):
             chunk = f.read(chunk_size)
 
     return hasher.hexdigest()
+
+def get_formatted_file_size(file_path):
+    size_bytes = os.path.getsize(file_path)
+
+    size = float(size_bytes)
+    for unit in ["B", "KB", "MB", "GB", "TB"]:
+        if size < 1024 or unit == "TB":
+            return f"{size:.2f} {unit}"
+        size /= 1024
