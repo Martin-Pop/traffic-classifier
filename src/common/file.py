@@ -15,6 +15,7 @@ def get_absolute_path(relative_path):
     If the given path is already absolute, it is returned unchanged.
     :param relative_path: relative path to resolve
     """
+    relative_path = os.path.normpath(relative_path)
 
     if os.path.isabs(relative_path):
         return relative_path

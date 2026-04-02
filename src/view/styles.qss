@@ -1,0 +1,37 @@
+/*
+ * style - Qt Style Sheet
+ * Created: 02.04.2026
+ */
+
+QWidget {
+    background-color: #f9f9f9;
+    color: #4C4545;
+}
+
+QPushButton {
+    background-color: #4170be;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    border-radius: 2px;
+    padding: 5px;
+}
+
+QPushButton:hover {
+    background-color: #2e4f87;
+}
+
+QLabel {
+    font-size: 15px;
+    font-weight: bold;
+    color: #4C4545;
+}
+
+
+#background_frame {
+    background-color: #e6e6e6;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+

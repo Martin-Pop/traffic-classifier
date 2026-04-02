@@ -16,16 +16,17 @@ class DropZone(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setContentsMargins(5,5,5,5)
         self.setAcceptDrops(True)
+        self.setObjectName("drop_zone")
 
         self.style_default = """
-            QLabel {
+            #drop_zone {
                 border: 4px dashed #aaa;
                 border-radius: 10px;
                 background-color: #f9f9f9;
                 font-size: 18px;
                 color: #555;
             }
-            QLabel:hover {
+            #drop_zone:hover {
                 background-color: #e9e9e9;
                 border-color: #888;
                 color: #333;
@@ -33,7 +34,7 @@ class DropZone(QLabel):
         """
 
         self.style_drag = """
-            QLabel {
+            #drop_zone {
                 border: 4px solid #4CAF50;
                 border-radius: 10px;
                 background-color: #e8f5e9;

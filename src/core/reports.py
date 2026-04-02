@@ -1,18 +1,20 @@
 from datetime import datetime
 from pathlib import Path
-import ipaddress
 
 from common.file import calculate_file_hash, get_absolute_path
+from common.utils import is_valid_ip
 
 
 class AnalysedReports:
 
     def __init__(self, reports_directory):
         self._directory = get_absolute_path(reports_directory)
+        self._found_reports = None
 
     def get_reports_for_file(self, file_path):
         file_hash = calculate_file_hash(file_path)
-        return self._find_reports(file_hash)
+        self._found_reports = self._find_reports(file_hash)
+        return self._found_reports
 
     def save_report(self):
         pass
@@ -39,9 +41,7 @@ class AnalysedReports:
                 continue
 
             ip = ".".join(ip_parts)
-            try:
-                ipaddress.ip_address(ip)
-            except ValueError:
+            if not is_valid_ip(ip):
                 continue
 
             stat = item.stat()
