@@ -27,6 +27,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     configuration = AppConfiguration(**json)
+    configuration.model_path = get_absolute_path(os.path.join("model", "model.joblib"))
 
     app = QApplication(sys.argv)
     apply_stylesheet(app)

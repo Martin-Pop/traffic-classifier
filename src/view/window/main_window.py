@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (
 )
 
 from controllers.session_controller import SessionController
+from core.predictions import ModelService
 
 
 class DropZone(QLabel):
@@ -81,6 +82,7 @@ class MainWindow(QMainWindow):
     def __init__(self, configuration):
         super().__init__()
         self._configuration = configuration
+        self._model_service = ModelService(configuration.model_path)
         self._active_sessions = []
         self._drop_zone = None
 
@@ -105,7 +107,7 @@ class MainWindow(QMainWindow):
         self._drop_zone.file_dropped_signal.connect(self.handle_new_file_dropped)
 
     def handle_new_file_dropped(self, file_path):
-        session = SessionController(self._configuration)
+        session = SessionController(self._configuration, self._model_service)
         session.session_closed.connect(self.remove_session)
         self._active_sessions.append(session)
 

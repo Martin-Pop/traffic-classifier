@@ -18,7 +18,7 @@ def _show_invalid_ip_message():
 
 class ReportConfigurationWindow(QWidget):
     closed_signal = Signal()
-    submit_signal = Signal()
+    submit_signal = Signal(str)
 
     def __init__(self, file_info):
         super().__init__()
@@ -103,3 +103,6 @@ class ReportConfigurationWindow(QWidget):
         target_ip = self.input_ip.text()
         if not is_valid_ip(target_ip):
             _show_invalid_ip_message()
+        else:
+            #just ip for now
+            self.submit_signal.emit(self.input_ip.text())
