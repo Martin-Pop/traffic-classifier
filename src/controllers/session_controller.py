@@ -53,7 +53,7 @@ class SessionController(QObject):
         self._report_config_window.close()
 
         self.analyzer = Analyzer(self._file_path, self._target_ip, self._model_service)
-        self.analyzer.progress_changed.connect(self._on_progress)
+        self.analyzer.progress_update.connect(self._on_progress)
         self.analyzer.analysis_finished.connect(self._on_results)
         self.analyzer.error_occurred.connect(self._on_error)
         self.analyzer.start()

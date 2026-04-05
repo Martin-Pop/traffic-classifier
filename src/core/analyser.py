@@ -4,7 +4,7 @@ from PySide6.QtCore import QThread, Signal
 from core.pcap_reader import extract_features_from_pcap
 
 class Analyzer(QThread):
-    progress_changed = Signal(str)
+    progress_update = Signal(str)
     analysis_finished = Signal(list)
     error_occurred = Signal(str)
 
@@ -16,19 +16,23 @@ class Analyzer(QThread):
 
     def run(self):
         try:
-            self.progress_changed.emit("Extracting features from PCAP...")
-            features = extract_features_from_pcap(self._file_path, self._target_ip)
+            self.progress_update.emit("Extracting features from PCAP... 0%")
+            features = extract_features_from_pcap(
+                self._file_path,
+                self._target_ip,
+                lambda percent: self.progress_update.emit(f"Extracting features from PCAP... {percent}% ")
+            )
 
             if not features:
                 self.error_occurred.emit("No valid traffic found for the target IP.")
                 return
 
             df = pd.DataFrame(features)
-            X = df.drop(columns=['timestamp'], errors='ignore')
+            x = df.drop(columns=['timestamp'], errors='ignore')
 
-            self.progress_changed.emit("Running predictions...")
+            self.progress_update.emit("Running predictions...")
 
-            probabilities = self._model_service.predict_proba(X)
+            probabilities = self._model_service.predict_proba(x)
             class_names = self._model_service.get_classes()
 
             results_df = pd.DataFrame(probabilities, columns=class_names)
@@ -39,7 +43,7 @@ class Analyzer(QThread):
 
             results = results_df.to_dict('records')
 
-            self.progress_changed.emit("Analysis complete.")
+            self.progress_update.emit("Analysis complete.")
             self.analysis_finished.emit(results)
 
         except Exception as e:

@@ -2,7 +2,7 @@ import logging
 import sys
 from pathlib import Path
 
-FILE_LOG_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | P:%(process)d | %(message)s"
+FILE_LOG_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | P:%(process)d | %(filename)s | L:%(lineno)d | %(message)s"
 CONSOLE_LOG_FORMAT = "%(levelname)s | %(message)s"
 root_logger = logging.getLogger()
 

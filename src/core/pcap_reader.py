@@ -1,3 +1,5 @@
+import os
+
 from scapy.utils import PcapReader
 from scapy.layers.inet import IP, TCP, UDP
 from collections import deque
@@ -38,7 +40,7 @@ def is_unicast_with_target_ip(pkt, target_ip):
     return False
 
 
-def extract_features_from_pcap(filepath, target_ip):
+def extract_features_from_pcap(filepath, target_ip, progress_callback=None):
     """
     Extracts features from a pcap file.
     Uses 20s sliding window with 5s step. Buffer represents the window. When it gets full
@@ -46,7 +48,10 @@ def extract_features_from_pcap(filepath, target_ip):
     :param filepath: filepath of pcap file
     :param target_ip: target IP
     :return: list of features
+    :param progress_callback: callback function, takes in % (int)
     """
+
+    file_size = os.path.getsize(filepath)
 
     buffer = deque()
     window_start_time = None
@@ -74,6 +79,11 @@ def extract_features_from_pcap(filepath, target_ip):
                     if features:
                         features['timestamp'] = window_start_time
                         all_features.append(features)
+
+                    if progress_callback:
+                        current_pos = pcap.f.tell()
+                        percentage = int((current_pos / file_size) * 100)
+                        progress_callback(percentage)
 
                 window_start_time += 5.0
                 window_end_time += 5.0
