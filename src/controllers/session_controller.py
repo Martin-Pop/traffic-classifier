@@ -2,7 +2,6 @@ import logging
 import os
 
 from PySide6.QtCore import Signal, QObject
-from PySide6.QtWidgets import QWidget
 
 from common.file import get_formatted_file_size
 from core.analyser import Analyzer
@@ -10,6 +9,7 @@ from core.reports import AnalysedReports
 from view.window.analysis_progress_page import AnalysisProgressPage
 from view.window.analysis_window import AnalysisWindow
 from view.window.report_configuration import ReportConfigurationWindow
+from view.window.traffic_chart_page import TrafficChartPage
 
 log = logging.getLogger("SessionController")
 
@@ -70,11 +70,10 @@ class SessionController(QObject):
 
 
     def _on_results(self, results):
-        for res in results:
-            log.info(f"Result: {res}")
+        # for res in results:
+        #     log.info(f"Result: {res}")
 
-        self._analysis_window.add_page("test", QWidget())
-        self._analysis_window.add_page("test2", QWidget())
+        self._analysis_window.add_page("Traffic Chart", TrafficChartPage(results))
 
     def _on_error(self, error_message):
         log.error(f"Error: {error_message}")
