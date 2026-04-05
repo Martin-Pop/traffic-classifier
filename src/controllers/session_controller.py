@@ -2,10 +2,13 @@ import logging
 import os
 
 from PySide6.QtCore import Signal, QObject
+from PySide6.QtWidgets import QWidget
 
 from common.file import get_formatted_file_size
 from core.analyser import Analyzer
 from core.reports import AnalysedReports
+from view.window.analysis_progress_page import AnalysisProgressPage
+from view.window.analysis_window import AnalysisWindow
 from view.window.report_configuration import ReportConfigurationWindow
 
 log = logging.getLogger("SessionController")
@@ -21,7 +24,9 @@ class SessionController(QObject):
         self._model_service = model_service
         self._analysed_reports = AnalysedReports(configuration.analysed_captures_directory)
         self._analyser = None
+
         self._report_config_window = None
+        self._analysis_window = AnalysisWindow()
 
         self._info = None
         self._target_ip = None
@@ -52,18 +57,24 @@ class SessionController(QObject):
         self._target_ip = report_configuration
         self._report_config_window.close()
 
-        self.analyzer = Analyzer(self._file_path, self._target_ip, self._model_service)
-        self.analyzer.progress_update.connect(self._on_progress)
-        self.analyzer.analysis_finished.connect(self._on_results)
-        self.analyzer.error_occurred.connect(self._on_error)
-        self.analyzer.start()
+        progress_page = AnalysisProgressPage()
+        self._analysis_window.add_page("report_progress", progress_page, False)
+        self._analysis_window.show()
 
-    def _on_progress(self, message):
-        log.info(f"Progress: {message}")
+        # analyser
+        self._analyser = Analyzer(self._file_path, self._target_ip, self._model_service)
+        self._analyser.progress_update.connect(progress_page.update_label)
+        self._analyser.analysis_finished.connect(self._on_results)
+        self._analyser.error_occurred.connect(self._on_error)
+        self._analyser.start()
+
 
     def _on_results(self, results):
         for res in results:
             log.info(f"Result: {res}")
+
+        self._analysis_window.add_page("test", QWidget())
+        self._analysis_window.add_page("test2", QWidget())
 
     def _on_error(self, error_message):
         log.error(f"Error: {error_message}")
