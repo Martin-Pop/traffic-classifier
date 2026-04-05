@@ -2,6 +2,8 @@ import json
 import sys
 import os
 import hashlib
+from pathlib import Path
+
 
 def get_absolute_path(relative_path):
     """
@@ -24,7 +26,7 @@ def get_absolute_path(relative_path):
         # pyinstallers temp path is stored in sys._MEIPASS
         base_path = sys._MEIPASS
     except AttributeError:
-        base_path = os.path.abspath("..") # depends on where main is!!!
+        base_path = Path(__file__).resolve().parent.parent.parent
 
     return os.path.join(base_path, relative_path)
 
