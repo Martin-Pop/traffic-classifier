@@ -5,7 +5,7 @@ from PySide6.QtCore import Signal, QObject
 
 from common.file import get_formatted_file_size
 from core.analyser import Analyzer
-from core.reports import AnalysedReports
+from core.captures import AnalysedCaptures
 from view.window.analysis_progress_page import AnalysisProgressPage
 from view.window.analysis_window import AnalysisWindow
 from view.window.report_configuration import ReportConfigurationWindow
@@ -22,7 +22,7 @@ class SessionController(QObject):
         super().__init__()
         self._configuration = configuration
         self._model_service = model_service
-        self._analysed_reports = AnalysedReports(configuration.analysed_captures_directory)
+        self._analysed_captures = AnalysedCaptures(configuration.analysed_captures_directory)
         self._analyser = None
 
         self._report_config_window = None
@@ -41,7 +41,7 @@ class SessionController(QObject):
         self._info = {
             "name": os.path.basename(file_path),
             "size": get_formatted_file_size(file_path),
-            "saved_reports": self._analysed_reports.get_reports_for_file(file_path),
+            "saved_captures": self._analysed_captures.find_captures_for_file(file_path),
         }
 
         self._report_config_window = ReportConfigurationWindow(self._info)
@@ -60,6 +60,14 @@ class SessionController(QObject):
         self._target_ip = report_configuration
         self._report_config_window.close()
 
+        saved_captures = self._analysed_captures.get_saved_captures(self._target_ip)
+        if saved_captures:
+            log.info(f"Found saved captures for {self._info.get('name')} and {self._target_ip} ")
+            self._on_results(saved_captures)
+            self._analysis_window.show()
+            return
+
+        log.info(f"No saved captures for {self._info.get('name')}, starting analysis")
         self._analysis_window.add_page("report_progress", self._progress_page, False)
         self._analysis_window.show()
 
@@ -74,8 +82,9 @@ class SessionController(QObject):
 
 
     def _on_results(self, results):
-        # for res in results:
-        #     log.info(f"Result: {res}")
+        if self._analysis_in_progress:
+            self._analysed_captures.save_captures(results, self._target_ip)
+            self._analysis_in_progress = False
 
         self._analysis_window.add_page("Traffic Chart", TrafficChartPage(results))
 

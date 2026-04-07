@@ -45,9 +45,9 @@ class ReportConfigurationWindow(QWidget):
         self.lbl_size = QLabel(f"Size: {self._file_info.get('size')}")
         main_layout.addWidget(self.lbl_size)
 
-        # saved reports
-        saved_reports = self._file_info.get('saved_reports')
-        if saved_reports:
+        # saved captures
+        saved_captures = self._file_info.get('saved_captures')
+        if saved_captures:
 
             cache_frame = QFrame()
             cache_frame.setObjectName("background_frame")
@@ -56,8 +56,8 @@ class ReportConfigurationWindow(QWidget):
             lbl_status = QLabel("Already processed for:")
             cache_layout.addWidget(lbl_status)
 
-            for ip_address, timestamp in saved_reports:
-                lbl_item = QLabel(f"• IP: {ip_address}  |  Date: {timestamp}")
+            for k, v in saved_captures.items():
+                lbl_item = QLabel(f"• IP: {k}  |  Date: {v[1]}")
                 lbl_item.setObjectName("lbl_item")
                 cache_layout.addWidget(lbl_item)
 
