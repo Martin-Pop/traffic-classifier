@@ -17,14 +17,18 @@ class Analyzer(QThread):
     def run(self):
         try:
             self.progress_update.emit("Extracting features from PCAP... 0%")
-            features = extract_features_from_pcap(
+            features, is_too_small = extract_features_from_pcap(
                 self._file_path,
                 self._target_ip,
                 lambda percent: self.progress_update.emit(f"Extracting features from PCAP... {percent}% ")
             )
 
+            if is_too_small:
+                self.error_occurred.emit("Traffic was found, but capture is too small to analyse (less than 20 seconds)")
+                return
+
             if not features:
-                self.error_occurred.emit("No valid traffic found for the target IP.")
+                self.error_occurred.emit(f"No traffic found for the target IP. ({self._target_ip})")
                 return
 
             df = pd.DataFrame(features)

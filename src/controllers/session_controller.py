@@ -27,10 +27,13 @@ class SessionController(QObject):
 
         self._report_config_window = None
         self._analysis_window = AnalysisWindow()
+        self._progress_page = AnalysisProgressPage()
 
         self._info = None
         self._target_ip = None
         self._file_path = None
+
+        self._analysis_in_progress = False
 
 
     def start(self, file_path):
@@ -57,16 +60,17 @@ class SessionController(QObject):
         self._target_ip = report_configuration
         self._report_config_window.close()
 
-        progress_page = AnalysisProgressPage()
-        self._analysis_window.add_page("report_progress", progress_page, False)
+        self._analysis_window.add_page("report_progress", self._progress_page, False)
         self._analysis_window.show()
 
         # analyser
         self._analyser = Analyzer(self._file_path, self._target_ip, self._model_service)
-        self._analyser.progress_update.connect(progress_page.update_label)
+        self._analyser.progress_update.connect(self._progress_page.update_label)
         self._analyser.analysis_finished.connect(self._on_results)
         self._analyser.error_occurred.connect(self._on_error)
         self._analyser.start()
+
+        self._analysis_in_progress = True
 
 
     def _on_results(self, results):
@@ -76,4 +80,7 @@ class SessionController(QObject):
         self._analysis_window.add_page("Traffic Chart", TrafficChartPage(results))
 
     def _on_error(self, error_message):
+        if self._analysis_in_progress:
+            self._progress_page.update_label(error_message)
+
         log.error(f"Error: {error_message}")

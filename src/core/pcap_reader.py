@@ -47,8 +47,8 @@ def extract_features_from_pcap(filepath, target_ip, progress_callback=None):
     features are calculated and window slides by one step.
     :param filepath: filepath of pcap file
     :param target_ip: target IP
-    :return: list of features
     :param progress_callback: callback function, takes in % (int)
+    :return: list of features, boolean which tells if the capture was too small to analyse ( <20s )
     """
 
     file_size = os.path.getsize(filepath)
@@ -93,4 +93,7 @@ def extract_features_from_pcap(filepath, target_ip, progress_callback=None):
 
             buffer.append(light_pkt)
 
-    return all_features
+    # when packets remain in the buffer but no features were calculated means that the capture is too small
+    is_too_small = len(buffer) > 0 and not all_features
+
+    return all_features, is_too_small
