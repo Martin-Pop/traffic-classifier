@@ -3,13 +3,12 @@
  * Created: 02.04.2026
  */
 
-QWidget {
+#background {
     background-color: #f9f9f9;
-    color: #4C4545;
 }
 
 QPushButton {
-    background-color: #4170be;
+    background-color: #3a64aa;
     color: #FFFFFF;
     font-size: 15px;
     font-weight: bold;
@@ -19,13 +18,18 @@ QPushButton {
 }
 
 QPushButton:hover {
-    background-color: #2e4f87;
+    background-color: #30528c;
 }
 
 QLabel {
     font-size: 15px;
     font-weight: bold;
-    color: #4C4545;
+    color: #3C3C4C;
+}
+
+#value_label {
+    font-size: 13px;
+    color: #4F5D75;
 }
 
 
@@ -35,3 +39,49 @@ QLabel {
     border-radius: 8px;
 }
 
+QLineEdit {
+    background-color: #ffffff;
+    color: #3C3C4C;
+    border: 2px solid #cccccc;
+    border-radius: 4px;
+    padding: 6px;
+    font-size: 14px;
+}
+
+QLineEdit:hover {
+    border: 2px solid #aaaaaa;
+}
+
+QLineEdit:focus {
+    border: 2px solid #3a64aa;
+    background-color: #ffffff;
+}
+
+
+QCheckBox {
+    color: #3C3C4C;
+    font-size: 14px;
+    font-weight: bold;
+    spacing: 8px;
+}
+
+QCheckBox:hover {
+    color: #3a64aa;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    background-color: #ffffff;
+    border: 2px solid #cccccc;
+    border-radius: 4px;
+}
+
+QCheckBox::indicator:hover {
+    border: 2px solid #3a64aa;
+}
+
+QCheckBox::indicator:checked {
+    background-color: #3a64aa;
+    border: 2px solid #30528c;
+}
