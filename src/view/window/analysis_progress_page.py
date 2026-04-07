@@ -11,6 +11,7 @@ class AnalysisProgressPage(QWidget):
         self._label.setText(text)
 
     def _init_ui(self):
+        self.setObjectName("background")
         layout = QVBoxLayout(self)
 
         self._label = QLabel("Analysis results")

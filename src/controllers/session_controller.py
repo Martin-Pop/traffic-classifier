@@ -26,7 +26,7 @@ class SessionController(QObject):
         self._analyser = None
 
         self._report_config_window = None
-        self._analysis_window = AnalysisWindow()
+        self._analysis_window = None
         self._progress_page = AnalysisProgressPage()
 
         self._info = None
@@ -59,6 +59,8 @@ class SessionController(QObject):
         # just ip for now
         self._target_ip = report_configuration
         self._report_config_window.close()
+
+        self._analysis_window = AnalysisWindow(self._info.get('name'))
 
         saved_captures = self._analysed_captures.get_saved_captures(self._target_ip)
         if saved_captures:

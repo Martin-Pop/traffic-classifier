@@ -37,6 +37,7 @@ class TrafficChartPage(QWidget):
                 config['series'].append(ts * 1000, value)
 
     def _init_ui(self):
+        self.setObjectName("background")
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
 

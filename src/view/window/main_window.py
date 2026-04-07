@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         self.resize(400, 250)
 
         central_widget = QWidget()
-        central_widget.setStyleSheet("background-color: #e6e6e6;")
+        central_widget.setObjectName("background")
 
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)

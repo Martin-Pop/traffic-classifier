@@ -6,9 +6,9 @@ log = logging.getLogger("AnalysisWindow")
 
 class AnalysisWindow(QWidget):
 
-    def __init__(self):
+    def __init__(self, file_name):
         super().__init__()
-
+        self._file_name = file_name
         self._pages = {}
         self._init_ui()
 
@@ -31,7 +31,8 @@ class AnalysisWindow(QWidget):
 
 
     def _init_ui(self):
-        self.setWindowTitle("Analysis results")
+        self.setObjectName("background")
+        self.setWindowTitle(f"Analysis results - {self._file_name}")
         self.resize(720, 480)
 
         main_layout = QVBoxLayout(self)
