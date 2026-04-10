@@ -40,7 +40,7 @@ def is_unicast_with_target_ip(pkt, target_ip):
     return False
 
 
-def extract_features_from_pcap(filepath, target_ip, window_size, step_size, progress_callback=None):
+def extract_features_from_pcap(filepath, target_ip, window_size, step_size, progress_callback=None, cancellation_token=None):
     """
     Extracts features from a pcap file.
     Uses 20s sliding window with 5s step. Buffer represents the window. When it gets full
@@ -50,6 +50,7 @@ def extract_features_from_pcap(filepath, target_ip, window_size, step_size, prog
     :param window_size: window size
     :param step_size: step size
     :param progress_callback: callback function, takes in % (int)
+    :param cancellation_token: cancellation token (Event from threading)
     :return: list of features, boolean which tells if the capture was too small to analyse ( <20s )
     """
 
@@ -63,6 +64,9 @@ def extract_features_from_pcap(filepath, target_ip, window_size, step_size, prog
 
     with PcapReader(filepath) as pcap:
         for pkt in pcap:
+
+            if cancellation_token and cancellation_token.is_set():
+                return None, None
 
             if not is_unicast_with_target_ip(pkt, target_ip):
                 continue

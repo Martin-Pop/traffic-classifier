@@ -110,5 +110,13 @@ class SessionController(QObject):
         log.error(f"Error: {error_message}")
 
     def _on_close(self):
+        if self._analysis_in_progress:
+            self._analyser.progress_update.disconnect()
+            self._analyser.analysis_finished.disconnect()
+            self._analyser.error_occurred.disconnect()
+
+            self._analyser.stop()
+            self._analysis_in_progress = False
+
         log.info(f"Ending session for {self._info.get('name')}")
         self.session_closed.emit(self)

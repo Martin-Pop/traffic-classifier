@@ -1,5 +1,6 @@
 import pandas as pd
 from PySide6.QtCore import QThread, Signal
+from threading import Event
 
 from core.pcap_reader import extract_features_from_pcap
 
@@ -16,6 +17,11 @@ class Analyzer(QThread):
         self._window_size = window_size_sec
         self._step_size = step_size_sec
 
+        self._cancellation_token = Event()
+
+    def stop(self):
+        self._cancellation_token.set()
+
     def run(self):
         try:
             self.progress_update.emit("Extracting features from PCAP... 0%")
@@ -24,8 +30,12 @@ class Analyzer(QThread):
                 self._target_ip,
                 self._window_size,
                 self._step_size,
-                lambda percent: self.progress_update.emit(f"Extracting features from PCAP... {percent}% ")
+                progress_callback= lambda percent: self.progress_update.emit(f"Extracting features from PCAP... {percent}% "),
+                cancellation_token=self._cancellation_token
             )
+
+            if self._cancellation_token.is_set():
+                return
 
             if is_too_small:
                 self.error_occurred.emit("Traffic was found, but capture is too small to analyse (less than 20 seconds)")
