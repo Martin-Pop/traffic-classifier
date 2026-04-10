@@ -42,13 +42,17 @@ class InteractiveChartView(QChartView):
             dt = datetime.fromtimestamp(closest_entry['timestamp'])
             time_str = dt.strftime("%H:%M:%S")
 
-            tooltip_lines = [f"<b>Time: {time_str}</b>", "<hr>"]
+            tooltip_lines = [f"<b><span style='color: #3C3C4C;'>Time: {time_str}</span></b>","<hr>"]
             for cat, config in self.category_config.items():
                 val = closest_entry.get(cat, 0.0)
                 color = config['color']
                 tooltip_lines.append(f"<font color='{color}'>• {cat.capitalize()}: {val:.2f}%</font>")
 
-            QToolTip.showText(event.globalPosition().toPoint(), "<br>".join(tooltip_lines), self)
+            tooltip_pos = event.globalPosition().toPoint()
+            tooltip_pos.setX(tooltip_pos.x() + 10)
+            tooltip_pos.setY(tooltip_pos.y() + 10)
+
+            QToolTip.showText(tooltip_pos, "<br>".join(tooltip_lines), self)
         else:
             self.crosshair.hide()
             QToolTip.hideText()

@@ -85,3 +85,32 @@ QCheckBox::indicator:checked {
     background-color: #3a64aa;
     border: 2px solid #30528c;
 }
+
+QToolTip {
+    background-color: #ffffff;
+    font-weight: bold;
+}
+
+
+#kpi_card {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+}
+
+#kpi_title {
+    color: #666666;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+#kpi_value {
+    color: #333333;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+#chart_view {
+    background-color: transparent;
+    border: none;
+}

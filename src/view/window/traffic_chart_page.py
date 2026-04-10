@@ -76,6 +76,6 @@ class TrafficChartPage(QWidget):
 
         self.chart_view = InteractiveChartView(self.chart, self._results_data, self._category_config)
         self.chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
-        self.chart_view.setStyleSheet("background-color: white; border: none;")
+        self.chart_view.setObjectName("chart_view")
 
         main_layout.addWidget(self.chart_view)
