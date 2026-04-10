@@ -58,20 +58,25 @@ class SessionController(QObject):
         log.info(f"Report configuration ended for {self._info.get('name')}")
 
     def _on_report_submit(self, report_configuration):
-        # just ip for now
-        self._target_ip = report_configuration
         self._report_config_window.close()
+
+        self._target_ip = report_configuration["ip_address"]
+        force_new_analysis = report_configuration["force_new_analysis"]
 
         self._analysis_window = AnalysisWindow(self._info.get('name'))
 
         saved_captures = self._analysed_captures.get_saved_captures(self._target_ip)
-        if saved_captures:
+        if saved_captures and not force_new_analysis:
             log.info(f"Found saved captures for {self._info.get('name')} and {self._target_ip} ")
             self._on_results(saved_captures)
             self._analysis_window.show()
             return
 
-        log.info(f"No saved captures for {self._info.get('name')}, starting analysis")
+        if force_new_analysis:
+            log.info(f"Starting new forced analysis on {self._info.get('name')}")
+        else:
+            log.info(f"No saved captures for {self._info.get('name')}, starting analysis")
+
         self._analysis_window.add_page("report_progress", self._progress_page, False)
         self._analysis_window.show()
 

@@ -65,8 +65,6 @@ class DashboardPage(QWidget):
                     max_prob = val
             confidence_sum += max_prob
 
-        print(sums)
-        print(confidence_sum)
         for cat in sums.keys():
             self._averages[cat] = sums[cat] / total_entries
 

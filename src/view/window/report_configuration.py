@@ -37,7 +37,7 @@ class LabelWithValue(QWidget):
 
 class ReportConfigurationWindow(QWidget):
     closed_signal = Signal()
-    submit_signal = Signal(str)
+    submit_signal = Signal(dict)
 
     def __init__(self, file_info):
         super().__init__()
@@ -123,5 +123,8 @@ class ReportConfigurationWindow(QWidget):
         if not is_valid_ip(target_ip):
             _show_invalid_ip_message()
         else:
-            #just ip for now
-            self.submit_signal.emit(self.input_ip.text())
+            conf = {
+                "ip_address": target_ip,
+                "force_new_analysis": self.checkbox.isChecked(),
+            }
+            self.submit_signal.emit(conf)
