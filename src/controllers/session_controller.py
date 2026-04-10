@@ -39,6 +39,11 @@ class SessionController(QObject):
 
 
     def start(self, file_path):
+        """
+        Starts analysis session by opening analysis configuration window ('report' configuration).
+        :param file_path: filepath of pcap file to analyse
+        """
+
         self._file_path = file_path
         self._info = {
             "name": os.path.basename(file_path),
@@ -55,6 +60,12 @@ class SessionController(QObject):
 
 
     def _on_report_submit(self, report_configuration):
+        """
+        Called when a report configuration is submitted.
+        Creates and starts analyser with proper configuration, then shows analysis window where progress can be seen.
+        :param report_configuration: analysis configuration, contains ip address and reanalyse bool
+        """
+
         self._report_config_window.close()
 
         self._target_ip = report_configuration["ip_address"]
@@ -95,6 +106,12 @@ class SessionController(QObject):
 
 
     def _on_analysis_results(self, results):
+        """
+        Called when analysis finishes.
+        Starts analysis window with analysis results.
+        :param results: results from analysis - list of dictionaries
+        """
+
         if self._analysis_in_progress:
             self._analysed_captures.save_captures(results, self._target_ip)
             self._analysis_in_progress = False
@@ -104,12 +121,22 @@ class SessionController(QObject):
         self._analysis_window.add_page("Raw Data", RawDataPage(results))
 
     def _on_analysis_error(self, error_message):
+        """
+        Called when an error occurs, error is displayed in analysis window.
+        :param error_message: error message to display
+        """
+
         if self._analysis_in_progress:
             self._progress_page.update_label(error_message)
 
         log.error(f"Error: {error_message}")
 
     def _on_close(self):
+        """
+        Called when closing analysis or configuration window.
+        If analysis is in progress its stopped early
+        """
+
         if self._analysis_in_progress:
             self._analyser.progress_update.disconnect()
             self._analyser.analysis_finished.disconnect()

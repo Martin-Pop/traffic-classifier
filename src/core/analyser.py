@@ -5,6 +5,10 @@ from threading import Event
 from core.pcap_reader import extract_features_from_pcap
 
 class Analyzer(QThread):
+    """
+    Thread that does analysis of pcap file.
+    """
+
     progress_update = Signal(str)
     analysis_finished = Signal(list)
     error_occurred = Signal(str)
@@ -20,9 +24,18 @@ class Analyzer(QThread):
         self._cancellation_token = Event()
 
     def stop(self):
+        """
+        Stop the analysis with early exit.
+        """
         self._cancellation_token.set()
 
     def run(self):
+        """
+        Starts analysis.
+        Features are extracted from pcap file.
+        Extracted features are then put into a trained model to predict category probabilities.
+        analysis_finished signal is emitted when results are ready with a pandas DataFrame.
+        """
         try:
             self.progress_update.emit("Extracting features from PCAP... 0%")
             features, is_too_small = extract_features_from_pcap(

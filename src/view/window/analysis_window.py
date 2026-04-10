@@ -6,6 +6,10 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget,
 log = logging.getLogger("AnalysisWindow")
 
 class AnalysisWindow(QWidget):
+    """
+    Represents window that displays analysis results
+    """
+
     closed_signal = Signal()
 
     def __init__(self, file_name):
@@ -19,6 +23,11 @@ class AnalysisWindow(QWidget):
         event.accept()
 
     def switch_page_to(self, page_name):
+        """
+        Switches stackedWidget's current page to page_name
+        :param page_name: page name
+        """
+
         target_widget = self._pages.get(page_name)
         if target_widget:
             self.page_container.setCurrentWidget(target_widget)
@@ -26,6 +35,14 @@ class AnalysisWindow(QWidget):
             log.error(f"Page '{page_name}' was not found")
 
     def add_page(self, page_name, page_widget, accessible=True):
+        """
+        Adds page to stackedWidget's pages.
+        Creates a button that witches to this page with a page_name label. This can be disabled with accessible parameter.
+        :param page_name: page name
+        :param page_widget: widget that gets displayed as page
+        :param accessible: tells if page should be accessible or not
+        """
+
         self.page_container.addWidget(page_widget)
 
         if accessible:

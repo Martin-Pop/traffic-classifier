@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
 
+    # TODO: fix logs folder not existing
     config_file = get_absolute_path(os.path.join("configuration", "config.json"))
     err_log_file = get_absolute_path(os.path.join("logs", "error.log"))
     app_log_file = get_absolute_path(os.path.join("logs", "app.log"))

@@ -2,6 +2,13 @@ import statistics
 
 
 def calculate_features(buffer, target_ip):
+    """
+    Calculated features for current buffer (one window).
+    :param buffer: buffer with features
+    :param target_ip: target ip
+    :return: dictionary with features
+    """
+
     total_packets = len(buffer)
     if total_packets == 0:
         return None

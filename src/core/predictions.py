@@ -1,7 +1,16 @@
 import joblib
 
 class ModelService:
+    """
+    Service that represents my model
+    """
+
     def __init__(self, model_path):
+        """
+        Model must be a joblib file.
+        :param model_path: path to model file
+        """
+
         self._model = joblib.load(model_path)
 
     def predict(self, features):
