@@ -47,15 +47,12 @@ class SessionController(QObject):
         }
 
         self._report_config_window = ReportConfigurationWindow(self._info)
-        self._report_config_window.closed_signal.connect(self._on_report_closed)
+        self._report_config_window.canceled_signal.connect(self._on_close)
         self._report_config_window.submit_signal.connect(self._on_report_submit)
         self._report_config_window.show()
 
         log.info(f"Report configuration started for {self._info.get('name')}")
 
-    def _on_report_closed(self):
-        # self.session_closed.emit(self)
-        log.info(f"Report configuration ended for {self._info.get('name')}")
 
     def _on_report_submit(self, report_configuration):
         self._report_config_window.close()
@@ -64,11 +61,12 @@ class SessionController(QObject):
         force_new_analysis = report_configuration["force_new_analysis"]
 
         self._analysis_window = AnalysisWindow(self._info.get('name'))
+        self._analysis_window.closed_signal.connect(self._on_close)
 
         saved_captures = self._analysed_captures.get_saved_captures(self._target_ip)
         if saved_captures and not force_new_analysis:
             log.info(f"Found saved captures for {self._info.get('name')} and {self._target_ip} ")
-            self._on_results(saved_captures)
+            self._on_analysis_results(saved_captures)
             self._analysis_window.show()
             return
 
@@ -89,14 +87,14 @@ class SessionController(QObject):
             self._configuration.step_size_sec
         )
         self._analyser.progress_update.connect(self._progress_page.update_label)
-        self._analyser.analysis_finished.connect(self._on_results)
-        self._analyser.error_occurred.connect(self._on_error)
+        self._analyser.analysis_finished.connect(self._on_analysis_results)
+        self._analyser.error_occurred.connect(self._on_analysis_error)
         self._analyser.start()
 
         self._analysis_in_progress = True
 
 
-    def _on_results(self, results):
+    def _on_analysis_results(self, results):
         if self._analysis_in_progress:
             self._analysed_captures.save_captures(results, self._target_ip)
             self._analysis_in_progress = False
@@ -105,8 +103,12 @@ class SessionController(QObject):
         self._analysis_window.add_page("Dashboard", DashboardPage(results))
         self._analysis_window.add_page("Raw Data", RawDataPage(results))
 
-    def _on_error(self, error_message):
+    def _on_analysis_error(self, error_message):
         if self._analysis_in_progress:
             self._progress_page.update_label(error_message)
 
         log.error(f"Error: {error_message}")
+
+    def _on_close(self):
+        log.info(f"Ending session for {self._info.get('name')}")
+        self.session_closed.emit(self)

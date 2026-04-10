@@ -36,17 +36,19 @@ class LabelWithValue(QWidget):
         layout.addStretch()
 
 class ReportConfigurationWindow(QWidget):
-    closed_signal = Signal()
+    canceled_signal = Signal()
     submit_signal = Signal(dict)
 
     def __init__(self, file_info):
         super().__init__()
         self._file_info = file_info
+        self._submitted = False
         self._init_ui()
 
     def closeEvent(self, event):
-        self.closed_signal.emit()
-        event.accept()
+        if not self._submitted:
+            self.canceled_signal.emit()
+        super().closeEvent(event)
 
     def _init_ui(self):
         self.setWindowTitle(f"Report Configuration - {self._file_info.get('name')}")
@@ -125,6 +127,8 @@ class ReportConfigurationWindow(QWidget):
         else:
             conf = {
                 "ip_address": target_ip,
-                "force_new_analysis": self.checkbox.isChecked(),
+                "force_new_analysis": self.checkbox.isChecked() if self.__dict__.get("checkbox") else False,
             }
+            self._submitted = True
             self.submit_signal.emit(conf)
+            self.close()

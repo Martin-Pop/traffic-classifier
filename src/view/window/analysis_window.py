@@ -1,16 +1,22 @@
 import logging
 
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget, QPushButton
 
 log = logging.getLogger("AnalysisWindow")
 
 class AnalysisWindow(QWidget):
+    closed_signal = Signal()
 
     def __init__(self, file_name):
         super().__init__()
         self._file_name = file_name
         self._pages = {}
         self._init_ui()
+
+    def closeEvent(self, event):
+        self.closed_signal.emit()
+        event.accept()
 
     def switch_page_to(self, page_name):
         target_widget = self._pages.get(page_name)
