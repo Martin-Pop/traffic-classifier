@@ -24,6 +24,21 @@ class ConfigurationRules:
         validate_or_create_directory,
     )
 
+    existing_file = Rule(
+        'File must exist',
+        lambda str_path: Path(get_absolute_path(str_path)).resolve().exists(),
+    )
+
+    is_joblib_file = Rule(
+        'Must be a joblib file',
+        lambda str_path: Path(get_absolute_path(str_path)).suffix == '.joblib',
+    )
+
+    positive_integer = Rule(
+        'Must be a positive integer',
+        lambda x: x > 0,
+    )
+
     valid_percentage = Rule(
         'Must be between 0 and 1 inclusive',
         lambda value: 0 <= value <= 1,

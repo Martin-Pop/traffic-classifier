@@ -40,13 +40,15 @@ def is_unicast_with_target_ip(pkt, target_ip):
     return False
 
 
-def extract_features_from_pcap(filepath, target_ip, progress_callback=None):
+def extract_features_from_pcap(filepath, target_ip, window_size, step_size, progress_callback=None):
     """
     Extracts features from a pcap file.
     Uses 20s sliding window with 5s step. Buffer represents the window. When it gets full
     features are calculated and window slides by one step.
     :param filepath: filepath of pcap file
     :param target_ip: target IP
+    :param window_size: window size
+    :param step_size: step size
     :param progress_callback: callback function, takes in % (int)
     :return: list of features, boolean which tells if the capture was too small to analyse ( <20s )
     """
@@ -69,7 +71,7 @@ def extract_features_from_pcap(filepath, target_ip, progress_callback=None):
 
             if window_start_time is None:
                 window_start_time = light_pkt['time']
-                window_end_time = window_start_time + 20.0
+                window_end_time = window_start_time + window_size
 
             # packet is out of bounds here  - calculate features, slide window
             while light_pkt['time'] >= window_end_time:
@@ -85,8 +87,8 @@ def extract_features_from_pcap(filepath, target_ip, progress_callback=None):
                         percentage = int((current_pos / file_size) * 100)
                         progress_callback(percentage)
 
-                window_start_time += 5.0
-                window_end_time += 5.0
+                window_start_time += step_size
+                window_end_time += step_size
 
                 while len(buffer) > 0 and buffer[0]['time'] < window_start_time:
                     buffer.popleft()

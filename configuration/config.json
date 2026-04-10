@@ -1,4 +1,5 @@
 {
   "analysed_captures_directory": "analysed_captures",
-  "default_threshold": 0.3
+  "window_size_sec": 20,
+  "step_size_sec": 5
 }

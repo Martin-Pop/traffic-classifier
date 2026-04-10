@@ -8,11 +8,13 @@ class Analyzer(QThread):
     analysis_finished = Signal(list)
     error_occurred = Signal(str)
 
-    def __init__(self, file_path, target_ip, model_service):
+    def __init__(self, file_path, model_service, target_ip, window_size_sec, step_size_sec):
         super().__init__()
         self._file_path = file_path
-        self._target_ip = target_ip
         self._model_service = model_service
+        self._target_ip = target_ip
+        self._window_size = window_size_sec
+        self._step_size = step_size_sec
 
     def run(self):
         try:
@@ -20,6 +22,8 @@ class Analyzer(QThread):
             features, is_too_small = extract_features_from_pcap(
                 self._file_path,
                 self._target_ip,
+                self._window_size,
+                self._step_size,
                 lambda percent: self.progress_update.emit(f"Extracting features from PCAP... {percent}% ")
             )
 

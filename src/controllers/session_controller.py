@@ -74,7 +74,13 @@ class SessionController(QObject):
         self._analysis_window.show()
 
         # analyser
-        self._analyser = Analyzer(self._file_path, self._target_ip, self._model_service)
+        self._analyser = Analyzer(
+            self._file_path,
+            self._model_service,
+            self._target_ip,
+            self._configuration.window_size_sec,
+            self._configuration.step_size_sec
+        )
         self._analyser.progress_update.connect(self._progress_page.update_label)
         self._analyser.analysis_finished.connect(self._on_results)
         self._analyser.error_occurred.connect(self._on_error)
