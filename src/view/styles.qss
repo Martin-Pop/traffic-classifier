@@ -114,3 +114,49 @@ QToolTip {
     background-color: transparent;
     border: none;
 }
+
+#raw_data_table {
+    background-color: #ffffff;
+    alternate-background-color: #C6C6C6;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #3C3C4C;
+}
+
+#raw_data_table::item:selected {
+    background-color: #3a64aa;
+    color: #ffffff;
+}
+
+#raw_data_table::item:hover {
+    background-color: #3a64aa;
+    color: #ffffff;
+}
+
+QHeaderView::section {
+    background-color: #e6e6e6;
+    color: #3C3C4C;
+    font-weight: bold;
+    font-size: 15px;
+    padding: 5px;
+    border: none;
+}
+
+QScrollBar:vertical {
+    width: 10px;
+    background-color: transparent;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #3a64aa;
+    border-radius: 5px;
+    min-height: 20px;
+    margin: 2px;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
+    height: 0px;
+}

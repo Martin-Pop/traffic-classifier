@@ -9,6 +9,7 @@ from core.captures import AnalysedCaptures
 from view.window.analysis_progress_page import AnalysisProgressPage
 from view.window.analysis_window import AnalysisWindow
 from view.window.dashboard_page import DashboardPage
+from view.window.raw_data_page import RawDataPage
 from view.window.report_configuration import ReportConfigurationWindow
 from view.window.traffic_chart_page import TrafficChartPage
 
@@ -97,6 +98,7 @@ class SessionController(QObject):
 
         self._analysis_window.add_page("Traffic Chart", TrafficChartPage(results))
         self._analysis_window.add_page("Dashboard", DashboardPage(results))
+        self._analysis_window.add_page("Raw Data", RawDataPage(results))
 
     def _on_error(self, error_message):
         if self._analysis_in_progress:
