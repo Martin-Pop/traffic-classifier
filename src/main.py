@@ -5,7 +5,7 @@ import sys
 from PySide6.QtWidgets import QApplication
 
 from common.logger import configure_file_loggers, configure_console_loggers
-from common.file import try_load_json_from_file, get_absolute_path, get_safe_absolute_path
+from common.file import try_load_json_from_file, get_absolute_path, get_safe_absolute_path, get_resource_path
 from configuration.configurations import AppConfiguration
 from view.style_loader import apply_stylesheet
 from view.window.main_window import MainWindow
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     configuration.model_path = get_absolute_path(configuration.model_path) # converts relative to abs path
 
     app = QApplication(sys.argv)
-    apply_stylesheet(app)
+    apply_stylesheet(app, get_resource_path(os.path.join("src", "view","styles.qss")))
 
     window = MainWindow(configuration)
     window.show()

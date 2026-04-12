@@ -5,10 +5,10 @@ import hashlib
 from pathlib import Path
 
 
-def get_absolute_path(relative_path):
+def get_resource_path(relative_path):
     """
     Returns the absolute path corresponding to a given relative path,
-    resolving it relative to the project root.
+    resolving it relative to the project root or pyinstaller's resources folder.
 
     The function works for:
     Scripts executed directly
@@ -26,6 +26,23 @@ def get_absolute_path(relative_path):
         # pyinstallers temp path is stored in sys._MEIPASS
         base_path = sys._MEIPASS
     except AttributeError:
+        base_path = Path(__file__).resolve().parent.parent.parent
+
+    return os.path.join(base_path, relative_path)
+
+def get_absolute_path(relative_path):
+    """
+    Returns the absolute path relative to project root.
+    :param relative_path: relative path to resolve
+    """
+    relative_path = os.path.normpath(relative_path)
+
+    if os.path.isabs(relative_path):
+        return relative_path
+
+    if hasattr(sys, 'frozen'):
+        base_path = os.path.dirname(sys.executable)
+    else:
         base_path = Path(__file__).resolve().parent.parent.parent
 
     return os.path.join(base_path, relative_path)
