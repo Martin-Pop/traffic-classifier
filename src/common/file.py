@@ -30,6 +30,22 @@ def get_absolute_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
+
+def get_safe_absolute_path(relative_path):
+    """
+    Gets absolute path and creates necessary directories if necessary.
+    :param relative_path: relative path to resolve
+    :return: absolute path
+    """
+
+    abs_path = get_absolute_path(relative_path)
+    directory = os.path.dirname(abs_path)
+
+    if directory and not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+
+    return abs_path
+
 def try_load_json_from_file(file_path):
     try:
         with open(file_path, "r") as json_file:

@@ -5,7 +5,7 @@ import sys
 from PySide6.QtWidgets import QApplication
 
 from common.logger import configure_file_loggers, configure_console_loggers
-from common.file import try_load_json_from_file, get_absolute_path
+from common.file import try_load_json_from_file, get_absolute_path, get_safe_absolute_path
 from configuration.configurations import AppConfiguration
 from view.style_loader import apply_stylesheet
 from view.window.main_window import MainWindow
@@ -14,10 +14,9 @@ log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
 
-    # TODO: fix logs folder not existing
     config_file = get_absolute_path(os.path.join("configuration", "config.json"))
-    err_log_file = get_absolute_path(os.path.join("logs", "error.log"))
-    app_log_file = get_absolute_path(os.path.join("logs", "app.log"))
+    err_log_file = get_safe_absolute_path(os.path.join("logs", "error.log"))
+    app_log_file = get_safe_absolute_path(os.path.join("logs", "app.log"))
 
     json, err = try_load_json_from_file(config_file)
     configure_file_loggers(err_log_file, app_log_file)
