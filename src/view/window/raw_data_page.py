@@ -47,14 +47,17 @@ class RawDataPage(QWidget):
             dt = datetime.fromtimestamp(entry['timestamp'])
             time_str = dt.strftime("%Y-%m-%d %H:%M:%S")
 
-            time_item = QTableWidgetItem(time_str)
+            time_item = QTableWidgetItem()
+            time_item.setData(Qt.ItemDataRole.DisplayRole, dt)
+            time_item.setText(time_str)
             time_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             self.table.setItem(row, 0, time_item)
 
             for col, cat in enumerate(self._categories, start=1):
                 val = entry.get(cat, 0.0)
 
-                item = QTableWidgetItem(f"{val:.2f}")
+                item = QTableWidgetItem()
+                item.setData(Qt.ItemDataRole.DisplayRole, round(val, 2))
                 item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.table.setItem(row, col, item)
 
