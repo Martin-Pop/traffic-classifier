@@ -1,84 +1,86 @@
-# Sběr a zpracování dat
+# Data Collection and Processing
 
-## 1. Architektura sběru dat
-Sběr síťového provozu probíhá externě přes hotspot na Raspberry Pi. Hlavní důvody pro tento přístup:
+## 1. Data Collection Architecture
+Network traffic is captured externally using a hotspot on a Raspberry Pi. The main reasons for this approach:
 
-* **Jednodušší správa:** Není potřeba nic instalovat ani nastavovat na koncových zařízeních. Proces je jednotný pro mobily i PC.
-* **Ochrana před Anti-Cheatem:** Některé hry na zařízeních detekují spuštěné síťové analyzátory (např. Wireshark) a zablokují se.
+* **Simpler management:** Nothing needs to be installed or configured on the end devices. The process is identical for both mobile devices and PCs.
+* **Anti-Cheat protection:** Some games detect running network analyzers (e.g., Wireshark) on the device and may block execution.
 
-**Technické řešení:**
-* **Zařízení:** Raspberry Pi připojené k domácímu routeru.
-* **Topologie:** Na RPi je vytvořen Wi-Fi hotspot. Testované zařízení se na něj připojí a RPi pouze forwarduje traffic do routeru.
-* **Odchytávání:** Provoz se zachytává přímo na síťovém rozhraní RPi do `.pcap` souboru.
+**Technical solution:**
+* **Device:** Raspberry Pi connected to the home router.
+* **Topology:** A Wi-Fi hotspot is created on the RPi. The tested device connects to it, and the RPi simply forwards traffic to the router.
+* **Capture:** Traffic is captured directly on the RPi network interface into a `.pcap` file.
 
-## 2. Metodika měření
-Data byla sbírána pro každou kategorii zvlášť. Aby nasbíraný dataset co nejlépe reflektoval reálné podmínky, měření probíhalo ve dvou různých scénářích:
+## 2. Measurement Methodology
+Data was collected separately for each category. To make the dataset reflect real-world conditions as closely as possible, measurements were performed in two different scenarios:
 
-1.  **Příprava zařízení (Stav pozadí):**
-    * *Čisté prostředí:* Na testovaném zařízení byly před měřením vypnuty veškeré aplikace na pozadí.
-    * *Simulace běžného provozu:* Na pozadí byly záměrně ponechány spuštěné běžné komunikační a pracovní aplikace (např. webový prohlížeč, Discord), pro zanesení realistického síťového šumu.
-2.  **Sběr dat:** Byla spuštěna specifická aktivita pro danou kategorii (např. scrollování TikTok pro `video`, hraní Clash Royale pro `gaming`).
-3.  **Délka měření:** Aktivita byla prováděna souvisle po určenou dobu (zpravidla 5–10 minut).
-4.  **Uložení:** Naměřená data byla uložena do surového `.pcap` souboru v příslušné složce dané kategorie.
-## 3. Zpracování dat
-Surový `.pcap` soubor prochází fázemi čištění, než se z něj začnou počítat vlastnosti (features) pro model:
+1. **Device preparation (Background state):**
+    * *Clean environment:* All background applications on the tested device were closed before measurement.
+    * *Simulated real usage:* Common communication and work applications (e.g., web browser, Discord) were intentionally left running in the background to introduce realistic network noise.
 
-1.  **Filtrování (Clean):** Ponechají se pouze pakety, kde zdrojová / cílová IP odpovídá testovanému zařízení. Odstraní se broadcasty `*.255` a multicasty `224.*`, `239.*`.
-2.  **Ořez (Cut-off):** Smaže se prvních a posledních 5 sekund záznamu. Tím se odstraní možné zkreslení vzniklé zapínáním/vypínáním (možná zbytečné).
-3.  **Rozdělení na části (Sliding Window):** Provoz se rozseká na časová okna o velikosti **20 sekund** s krokem **5 sekund**. Každé okno je jeden řádek dat.
+2. **Data collection:** A specific activity for the given category was performed (e.g., scrolling TikTok for `video`, playing Clash Royale for `gaming`).
 
-## 4. Vypočítané vlastnosti (Features)
+3. **Measurement duration:** The activity was performed continuously for a defined period (typically 5–10 minutes).
 
-### A. Použité vlastnosti
+4. **Storage:** The measured data was saved as a raw `.pcap` file in the corresponding category folder.
 
-* `in_packet_ratio`: Poměr příchozích paketů vůči všem paketům (symetrie komunikace).
-* `in_byte_ratio`: Poměr přijatých bajtů vůči všem bajtům.
-* `size_mean`: Průměrná velikost paketu.
-* `size_std`: Směrodatná odchylka velikosti paketů.
-* `size_min` / `size_max`: Minimální a maximální velikost paketu.
-* `iat_mean`: Průměrná mezera (Inter-Arrival Time) mezi pakety (frekvence komunikace).
-* `iat_std`: Směrodatná odchylka mezer (plynulost?).
-* `iat_max`: Nejdelší ticho v okně (čtení webu nebo idle).
-* `tcp_ratio` / `udp_ratio`: Zastoupení transportních protokolů.
+## 3. Data Processing
+The raw `.pcap` file goes through several cleaning phases before features are computed for the model:
 
-### B. Zamítnuté vlastnosti 
-Následující vlastnosti byly zvažovány nebo původně počítány, ale nakonec nebudou použity.
+1. **Filtering (Clean):** Only packets where the source/destination IP matches the tested device are kept. Broadcasts `*.255` and multicasts `224.*`, `239.*` are removed.
+2. **Cut-off:** The first and last 5 seconds of the capture are removed. This eliminates possible distortion caused by starting/stopping the capture (possibly unnecessary).
+3. **Segmentation (Sliding Window):** Traffic is split into time windows of **20 seconds** with a step of **5 seconds**. Each window represents one data row.
+
+## 4. Computed Features
+
+### A. Used Features
+
+* `in_packet_ratio`: Ratio of incoming packets to all packets (communication symmetry).
+* `in_byte_ratio`: Ratio of received bytes to all bytes.
+* `size_mean`: Average packet size.
+* `size_std`: Standard deviation of packet sizes.
+* `size_min` / `size_max`: Minimum and maximum packet size.
+* `iat_mean`: Average Inter-Arrival Time between packets (communication frequency).
+* `iat_std`: Standard deviation of inter-arrival times (smoothness?).
+* `iat_max`: Longest silence within the window (reading a webpage or idle state).
+* `tcp_ratio` / `udp_ratio`: Distribution of transport protocols.
+
+### B. Rejected Features
+The following features were considered or originally computed but will not be used:
 
 * `total_bytes`, `in_bytes`, `out_bytes`
-    * Absolutní hodnoty. Závisí na rychlosti nebo například na rozlišení.
-* `total_packets`, `in_packets`, `out_packets`:
-    * Stejný problém jako u bytest. Rychlost je lépe popsána pomocí `iat_mean`.
-* `prev_total_packets`: 
-    * Mělo znázorňovat růst / pokles komunikace mezi "okny", není potřeba díky sliding window.
+    * Absolute values. Dependent on connection speed or, for example, resolution.
+* `total_packets`, `in_packets`, `out_packets`
+    * Same issue as bytes. Speed is better described using `iat_mean`.
+* `prev_total_packets`
+    * Intended to represent growth/decline of communication between windows. Not needed due to the sliding window approach.
 
-## 5. Jednotlivá měření
+## 5. Definition of Measured Categories
+The dataset is divided into 7 categories that represent common user network behavior:
 
-## Definice měřených kategorií
-Dataset je rozdělen do 7 kategorií, které pokrývají běžné chování uživatele na síti:
+* **browsing:** Regular web browsing (e-shops, articles, maps). Characterized by burst content loading followed by silence while the user reads.
+* **download:** Downloading large files or games (e.g., from Steam). Continuous stream of large packets attempting to fully utilize the connection.
+* **gaming:** Playing online multiplayer games. Characterized by fast, bidirectional communication with very small packets (often over UDP).
+* **idle:** The device is left unattended. Only small background “noise” flows through the network (keep-alive packets, notifications).
+* **video:** Watching videos (Netflix, Disney+, YouTube). Characterized by buffering — the app downloads a large chunk of data in advance, then pauses network usage for a while.
+* **voice:** Real-time voice communication (Discord, WhatsApp). Characterized by relatively symmetric and regular traffic in both directions without large gaps.
 
-* **browsing:** Běžné prohlížení webu (e-shopy, články, mapy). Typické je nárazové načtení obsahu a následné ticho, když uživatel čte.
-* **download:** Stahování velkých souborů nebo her (např. ze Steamu). Souvislý a nepřetržitý tok velkých paketů, který se snaží maximálně vytížit linku.
-* **gaming:** Hraní online multiplayer her. Vyznačuje se rychlou, obousměrnou komunikací s velmi malými pakety (často přes UDP).
-* **idle:** Zařízení je odložené, uživatel s ním nepracuje. Sítí proudí jen malý "šum" na pozadí (udržovací keep-alive pakety, notifikace).
-* **video:** Sledování videí (Netflix, Disney+, YouTube). Vyznačuje se bufferováním – aplikace stáhne velký blok dat dopředu a pak má síť chvíli pauzu.
-* **voice:** Hlasové hovory v reálném čase (Discord, WhatsApp). Charakteristický je přiměřeně symetrický a pravidelný provoz oběma směry bez větších mezer.
+## 6. Individual Measurements
 
-## ## 6. Jednotlivá měření
-
-| Kategorie    | Popis aktivity                                                       | Celková doba (min) |
-|:-------------|:---------------------------------------------------------------------|:-------------------|
-| **browsing** | Prohledávání e-shopů (Alza.cz, Datart)                               | 10                 |
-| **browsing** | Čtení článků a novinek (Wikipedie, Seznam)                           | 10                 |
-| **browsing** | Hledání v mapách                                                     | 5                  |
-| **browsing** | Běžné prohlížení webu (včetně aplikací na pozadí)                    | 15                 |
-| **download** | Stahování aktualizací aplikací (Steam - Blender)                     | 10                 |
-| **gaming**   | Hraní Roblox her (Oaklands, ToH, včetně měření na pozadí)            | 30                 |
-| **gaming**   | Hraní Minecraftu na veřejném serveru                                 | 10                 |
-| **gaming**   | Hraní hry Clash Royale                                               | 5                  |
-| **gaming**   | Hraní webové hry (mope.io)                                           | 5                  |
-| **idle**     | Nečinnost počítače - Win11 (čistá i s aplikacemi na pozadí)          | 50                 |
-| **idle**     | Nečinnost telefonu - Android                                         | 10                 |
-| **video**    | Sledování YouTube (klasická videa, Shorts, prohlížeč Brave + pozadí) | 50                 |
-| **video**    | Sledování filmů a seriálů (Netflix, Disney+, Cineb)                  | 25                 |
-| **video**    | Sledování sítě TikTok                                                | 10                 |
-| **voice**    | Komunikační hovory (WhatsApp, Discord)                               | 15                 |
+| Category     | Activity description                                                    | Total time (min) |
+|:-------------|:------------------------------------------------------------------------|:-----------------|
+| **browsing** | Browsing e-shops (Alza.cz, Datart)                                     | 10               |
+| **browsing** | Reading articles and news (Wikipedia, Seznam)                           | 10               |
+| **browsing** | Searching in maps                                                       | 5                |
+| **browsing** | Regular web browsing (including background applications)                 | 15               |
+| **download** | Downloading application updates (Steam – Blender)                        | 10               |
+| **gaming**   | Playing Roblox games (Oaklands, ToH, including background measurement)  | 30               |
+| **gaming**   | Playing Minecraft on a public server                                    | 10               |
+| **gaming**   | Playing Clash Royale                                                    | 5                |
+| **gaming**   | Playing a web game (mope.io)                                            | 5                |
+| **idle**     | Computer idle state – Windows 11 (clean and with background apps)       | 50               |
+| **idle**     | Phone idle state – Android                                              | 10               |
+| **video**    | Watching YouTube (regular videos, Shorts, Brave browser + background)   | 50               |
+| **video**    | Watching movies and series (Netflix, Disney+, Cineb)                    | 25               |
+| **video**    | Browsing TikTok feed                                                    | 10               |
+| **voice**    | Voice communication calls (WhatsApp, Discord)                           | 15               |
